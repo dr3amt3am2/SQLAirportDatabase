@@ -1,0 +1,136 @@
+import java.sql.*;
+import java.io.*;
+
+
+
+
+public class SQLWorker {
+	private String user;
+	private String pass;
+	private Connection con;
+	private Statement command = null;
+	// current date/time
+	// from: http://stackoverflow.com/questions/15534775/
+	// how-to-insert-current-time-in-mysql-using-java
+	java.util.Date date = new java.util.Date();
+	Timestamp timestamp = new Timestamp(date.getTime()); 
+	java.sql.Date sDate = new java.sql.Date(timestamp.getTime());
+
+	public SQLWorker(String in_user, String in_pass) {
+		user = in_user;
+		pass = in_pass;
+		//connectSQL();
+		System.out.println("SQL connection finished.");
+	}
+	private void connectSQL() {
+		// url and driver setup for SQL
+		String url = "jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
+		String driverName = "oracle.jdbc.driver.OracleDriver";
+		try {
+			Class drvClass = Class.forName(driverName);
+		}
+		catch (Exception e) {
+			System.err.println("ClassNotFoundException: " + e.getMessage());
+		}
+		try {
+			// establish connection
+			con = DriverManager.getConnection(url, user, pass);
+			command = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+											ResultSet.CONCUR_UPDATABLE);
+		}
+		catch (SQLException ex) {
+
+			System.err.println("SQL Exception: " + ex.getMessage());
+		}
+	}
+	public void disconnectSQL() throws SQLException {
+		command.close();
+		con.close();
+		}
+
+	public void updateSQL(String sql_code) {
+		connectSQL();
+		try {
+			command.executeUpdate(sql_code);
+		}
+		catch (SQLException e) {
+			System.err.println("SQL Exception: " + e.getMessage());
+		}
+	}
+	public boolean checkUser(String fUser, String fPass) {
+	    String query = "SELECT email, pass, last_login FROM USERS";
+	    // url and driver setup for SQL
+		String url = "jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS";
+		String driverName = "oracle.jdbc.driver.OracleDriver";
+		try {
+			Class drvClass = Class.forName(driverName);
+		}
+		catch (Exception e) {
+			System.err.println("ClassNotFoundException: " + e.getMessage());
+		}
+		try {
+			// establish connection
+			con = DriverManager.getConnection(url, user, pass);
+			command = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+											ResultSet.CONCUR_UPDATABLE);
+		}
+		catch (SQLException ex) {
+
+			System.err.println("SQL Exception: " + ex.getMessage());
+		}
+		ResultSet rs = null;
+		try {
+			rs = command.executeQuery(query);
+		}
+		catch (SQLException e) {
+			System.err.println("SQL Exception: " + e.getMessage());
+		}
+		// check credentials
+        try {
+			while (rs.next()) {
+			    String temp_u = rs.getString("email");
+			    String temp_p = rs.getString("pass");
+			    System.out.println(temp_u);
+			    System.out.println(fUser);
+			    System.out.println(fUser.equals(temp_u));
+				if(fUser.equals(temp_u)) {
+				    // username is in the DB
+				    System.out.println("in if statement");
+				    if (fPass.equals(temp_p)) {
+				        // pass word is correct
+				        return true;
+				    }
+				    else {
+				        // password is wrong
+				        System.out.println("Wrong pass");
+				        return false;
+				    }
+				}
+		    }
+		}
+		catch (SQLException e) {
+			System.err.println("SQL Exception: " + e.getMessage());
+		}
+		
+		// if we got this far, then we need to add this information to 
+		// the database
+		try {
+		    rs.moveToInsertRow();
+		    rs.updateString(1, fUser);
+		    rs.updateString(2, fPass);
+		    rs.updateDate(3,sDate);
+		    rs.insertRow();
+		}
+		catch (SQLException e) {
+		    System.err.println("SQL Exception: " + e.getMessage());
+		}
+		try {
+		    con.close();
+		    command.close();
+		}
+		catch (Exception e) {}
+		return true;
+	    
+	}
+
+}

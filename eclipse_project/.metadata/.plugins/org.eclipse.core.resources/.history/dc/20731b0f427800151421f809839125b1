@@ -1,0 +1,13 @@
+
+public class Test {
+	Session n = new Session();
+	n.promptSQL();
+	n.promptLogin();
+	try {
+		n.disconnectSQL();
+	}
+	catch (Exception e) {
+		// do nothing
+	}
+
+}

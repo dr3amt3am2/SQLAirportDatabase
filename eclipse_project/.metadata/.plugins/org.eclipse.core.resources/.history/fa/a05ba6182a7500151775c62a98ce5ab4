@@ -1,0 +1,28 @@
+package userstuff;
+import java.util.Scanner;
+
+public class Session {
+	private String user;
+	private String pass;
+
+	public Session() {
+		login_prompt();
+	}
+	private void login_prompt() {
+		System.out.println("Please enter your username: ");
+		user = scan_input();
+		System.out.println(user); // just to see
+		// if user is in database, ask for password.
+		System.out.println("Hello " + user + ", please enter your password:");
+		pass = scan_input();
+		System.out.println(pass); // just to see
+	}
+	private String scan_input() {
+		Scanner in = new Scanner(System.in);
+		return in.nextLine();
+		in.close();
+	}
+	// getters
+	// setters
+}
+

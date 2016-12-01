@@ -1,0 +1,15 @@
+public class Test {
+	
+	public static void main(String [] args) {
+		Session n = new Session();
+		n.promptSQL();
+		n.promptLogin();
+		try {
+			n.disconnectSQL();
+		}
+		catch (Exception e) {
+			// do nothing
+		}
+	}
+
+}
